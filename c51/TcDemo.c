@@ -99,10 +99,10 @@ void UartSendStr(char *p)
 
 void UartSendS(u16 x)
 {
-u8 a[4];
-u8 i;
+s8 a[4];
+s8 i;
 	
-a[0]=x/1000;
+a[0]=x/10000;
 a[1]=x%10000/1000;
 a[2]=x%1000/100;
 a[3]=x%100/10;
@@ -160,7 +160,7 @@ void main()
     ADC_CONTR = 0x87;                           //使能ADC模块
 		
 dbgInfo.command = twCmd_StartCal; 
-dbgInfo.sensitivity = __CAL_BASE_TARGET_DEFAULT; 
+dbgInfo.sensitivity = 255; 
 dbgInfo.command |= twCmd_SetMode; 
 dbgInfo.mode = twStateWorking; //  twStateDiagnose; 
 dbgInfo.command |= twCmd_Tune; 
@@ -202,7 +202,6 @@ UartSendS(dbgInfo.admVal);
 UartSend(0x0d);UartSend(0x0a);
 }
 Delay32ms();
-  
 //if(buffer[0]==bf[0]&&buffer[1]==bf[3]&&sk==0)
 //{
 //			sy=buffer[2];
@@ -218,7 +217,7 @@ Delay32ms();
 //			dbgInfo.negReleaseShort = __DERIVATIVE_RELEASE_SHORT_NEG; 
 //			dbgInfo.negReleaseLong = __DERIVATIVE_RELEASE_LONG_NEG; 
 //			dbgInfo.longPressDelay = 156; // 5000 ms / 32 ms
-//	
+//			sensorState=ts2xSensorUpdate(adcVal,&dbgInfo);
 //			UartSendS(dbgInfo.sensitivity);
 //			UartSendS(dbgInfo.posTrigger);
 //			UartSend(0x0d);UartSend(0x0a);
