@@ -19,6 +19,13 @@ dbgInfo.longPressDelay=156;     //长按时间5000ms/32ms
 do
 {
 twS16 adcVal=getAdc();
+//  adO=adcVal;
+//  adcVal = advArray[index++];
+//  if(index==sizeof(advArray)/sizeof(advArray[0])-1)
+//  index=0;
+//  adN=adcVal;
+//  if(adN==1506)
+//  adcVal=adO;
 sensorState=ts2xSensorUpdate(adcVal,&dbgInfo)
 if(sensorState==1)
   {}
