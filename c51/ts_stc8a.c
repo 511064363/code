@@ -37,6 +37,22 @@ twU08 Tg;
 ts2xDebug_t dbgInfo;
 twU08 sensorState;
 u16 adcVal;
+void Delay600ms()		//@24.000MHz
+{
+	unsigned char i, j, k;
+
+	i = 74;
+	j = 14;
+	k = 24;
+	do
+	{
+		do
+		{
+			while (--k);
+		} while (--j);
+	} while (--i);
+}
+
 void Delay32ms()		//@24.000MHz
 {
 	unsigned char i, j, k;
@@ -170,21 +186,6 @@ u16 adcGet()
 	return adcV;
 }
 
-void tsInit()
-{
-	dbgInfo.command = twCmd_StartCal; 
-	dbgInfo.sensitivity = __CAL_BASE_TARGET_DEFAULT; 
-	dbgInfo.command |= twCmd_SetMode; 
-	dbgInfo.mode = twStateWorking; //  twStateDiagnose; 
-	dbgInfo.command |= twCmd_Tune; 
-	dbgInfo.posTrigger = __THRESHOLD_TRIGGER_POSITIVE;
-	dbgInfo.posReleaseShort = __DERIVATIVE_RELEASE_SHORT_POS; 
-	dbgInfo.posReleaseLong = __DERIVATIVE_RELEASE_LONG_POS; 
-	dbgInfo.negTrigger = __THRESHOLD_TRIGGER_NEGATIVE; 
-	dbgInfo.negReleaseShort = __DERIVATIVE_RELEASE_SHORT_NEG; 
-	dbgInfo.negReleaseLong = __DERIVATIVE_RELEASE_LONG_NEG; 
-	dbgInfo.longPressDelay = 156; 											// 5000 ms / 32 ms
-}
 void tc(twU16 sx,twS08 tx)
 {
 	dbgInfo.command = twCmd_StartCal; 
@@ -201,10 +202,10 @@ void tc(twU16 sx,twS08 tx)
 	dbgInfo.longPressDelay = 156; 											// 5000 ms / 32 ms
 }
 void uartPrint()
-{
+{	
+	UartSendS(sensorState);
 	UartSendS(adcVal);
 	UartSendS(dbgInfo.resVal);
-	UartSendS(sensorState);
 	UartSendS(dbgInfo.fwVer);
 	UartSendS(dbgInfo.base);
 	UartSendS(dbgInfo.admVal);
@@ -282,50 +283,10 @@ void TM1650_Set(u8 add,u8 dat) //????oy??1????1??????o?
 	I2Cask();
 	I2CStop();
 }
-//void tsTc()
-//{
-//u16 sy;
-//s8 tg;
-
-//if(sk)
-//{
-//	uartPrint();
-//}
-
-//if(buffer[0]==bf[0]&&buffer[1]==bf[3]&&sk==0)
-//{
-//	sy=buffer[2];
-//	sy=sy<<8;sy+=buffer[3];
-//	tg=buffer[4];
-//	dbgInfo.command = twCmd_StartCal; 
-//	dbgInfo.sensitivity =sy;
-//	dbgInfo.command |= twCmd_Tune; 
-//	dbgInfo.posTrigger = tg;
-//	dbgInfo.posReleaseShort = __DERIVATIVE_RELEASE_SHORT_POS; 
-//	dbgInfo.posReleaseLong = __DERIVATIVE_RELEASE_LONG_POS; 
-//	dbgInfo.negTrigger = __THRESHOLD_TRIGGER_NEGATIVE; 
-//	dbgInfo.negReleaseShort = __DERIVATIVE_RELEASE_SHORT_NEG; 
-//	dbgInfo.negReleaseLong = __DERIVATIVE_RELEASE_LONG_NEG; 
-//	dbgInfo.longPressDelay = 156; // 5000 ms / 32 ms
-//	sensorState=ts2xSensorUpdate(adcVal,&dbgInfo);
-//	UartSendS(dbgInfo.sensitivity);
-//	UartSendS(dbgInfo.posTrigger);
-//	UartSend(0x0d);UartSend(0x0a);
-//}
-//if(SBUF==0xff&&sk==0) sk=1;
-//else if(SBUF==0x11&&sk==1) sk=0;
-//else if(SBUF==0xcc&&sk==1)
-//{
-//	sk=0;
-//	UartSendS(dbgInfo.sensitivity);
-//	UartSendS(dbgInfo.posTrigger);
-//	UartSend(0x0d);UartSend(0x0a);
-//}}
 
 void main()
 {
 UartInit();
-//Timer3Init();
 Timer4Init();
 
 ES = 1;
@@ -344,36 +305,18 @@ P7M1 = 0x01;
 	
 ADCCFG = 0x0f;          	    //??ADC???????/2/16/16
 ADC_CONTR = 0x87;             //??ADC??
-
-tsInit();
+WDT_CONTR = 0x23;
+tc(__CAL_BASE_TARGET_DEFAULT,__THRESHOLD_TRIGGER_POSITIVE);
 	
 TM1650_Set(0x48,0x51);
 
 while (1)
 {
+	WDT_CONTR |= 0x10;
 	uartPrint();
 	Delay32ms();
 }}
-//void TM3_Isr() interrupt 19
-//{
-//	u8 j,a[4];
 
-//	a[0]=adcVal%10000/1000;
-//	a[1]=adcVal%1000/100;
-//	a[2]=adcVal%100/10;
-//	a[3]=adcVal%10;
-//	
-//	if(j++>3)
-//		{
-//			TM1650_Set(0x6C,CO[a[0]]);
-//			TM1650_Set(0x6E,CO[a[1]]);
-//			TM1650_Set(0x68,CO[a[2]]);
-//			TM1650_Set(0x6A,CO[a[3]]);			
-//			j=0;
-//		}
-//	
-//  AUXINTIF &= ~0x02;                          //?????
-//}
 void TM4_Isr() interrupt 20
 {
 	u8 b[4];
@@ -413,16 +356,7 @@ void UartIsr() interrupt 4
     { 	
 				Dat=SBUF;
         RI = 0;
-//				if(Fg==0&&Dat==0x5A){Bf[Fg]=Dat;Fg++;Dat=0;}
-//				else if(Fg==1&&Dat==0xA5){Bf[Fg]=Dat;Fg++;Dat=0;}
-//				else if(Fg>1&&Fg<5){Bf[Fg]=Dat;Fg++;Dat=0;}
-//				else if(Fg==5&&Dat==0xab)
-//					{
-//						Fg=0;
-//						Sy=Bf[2];Sy<<=8;Sy+=Bf[3];Tg=Bf[4];
-//						tc(Sy,Tg);
-//					}
-//				else Fg=0;
+
 				if(Fg==0&&Dat=='#') {Fg++;Dat=0;}
 				else if(Fg>0&&Fg<8&&Dat!='#') {Bf[Fg]=Dat;Fg++;Dat=0;}
 				else if(Fg==6&&Dat=='#'&&Bf[4]==',') 
@@ -431,6 +365,7 @@ void UartIsr() interrupt 4
 									Sy=(Bf[1]-'0')*100+(Bf[2]-'0')*10+(Bf[3]-'0');
 									Tg=Bf[5]-'0';
 									if(Sy&&Tg) tc(Sy,Tg);
+									else if(Sy||Tg==0) Delay600ms();
 								}
 				else if(Fg==7&&Dat=='#') 
 								{
