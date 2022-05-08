@@ -1,7 +1,5 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
-import os
-import sys
 import re
 import datetime
 __time = datetime.datetime.now().strftime('%g%m%d')
