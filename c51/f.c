@@ -14,3 +14,6 @@ for(ia=1;ia<10;ia++)
  if(tA[ia]<imin) imin=tA[ia];
 }
 adcVal=(ksS16)(sum-imax-imin/8);
+
+噪声
+adcVal+=rand()%20;
