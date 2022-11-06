@@ -17,3 +17,26 @@ adcVal=(ksS16)(sum-imax-imin/8);
 
 噪声
 adcVal+=rand()%20;
+
+u16 a2s(u16 ad,u8 m)
+{
+		b[0]=ad-a[0];b[1]=a[0]-a[1];b[2]=a[1]-a[2];
+	  a[2]=a[1];a[1]=a[0];a[0]=ad;
+			
+		if(b[0]>0&&b[1]>0&&b[2]>0&&b[0]+b[1]+b[2]>m) {
+		key=1;
+		if(x) {tmin=ad;x=0;}
+		tmax=ad;
+		}
+	
+	  else if(b[0]>=0&&b[1]>=0&&b[2]>=0&&(b[0]+b[1]+b[2]<m)) {
+		if(x) {tmin=ad;x=0;}
+		if(ad-tmin>=m) {key=1;tmax=ad;}
+	}
+			
+	if(key==1) {i++;if(i>=200) {i=0;key=0;}}
+	if(b[0]<=0&&b[1]<=0&&b[2]<=0&&b[0]+b[1]+b[2]<=-m) {key=0;}
+	if(key==0) {tmin=ad;tmax=ad;}
+
+	return key;
+}
