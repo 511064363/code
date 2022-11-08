@@ -19,39 +19,123 @@ adcVal=(ksS16)(sum-imax-imin/8);
 adcVal+=rand()%20;
 
 //模拟按键转开关
-u16 a2s(u16 ad,u8 m)
+bit a2s(u16 ad,u8 m)
 {
-	b[0]=ad-a[0];b[1]=a[0]-a[1];b[2]=a[1]-a[2];
-	a[2]=a[1];a[1]=a[0];a[0]=ad;
-		
-	if(b[0]>0&&b[1]>0&&b[2]>0&&b[0]+b[1]+b[2]>m) {
+	b[0]=ad-a[0];
+	b[1]=a[0]-a[1];
+	b[2]=a[1]-a[2];
+	
+	a[2]=a[1];
+	a[1]=a[0];
+	a[0]=ad;
+
+	if(b[0]>0&&b[1]>0&&b[2]>0&&b[0]+b[1]+b[2]>m)
+	{
+		key=1;
+		if(!x)
+		{
+			tmin=a[2];
+			x=1;
+		}
+	}
+
+	else if(b[0]>=0&&b[1]>=0&&b[2]>=0&&(b[0]+b[1]+b[2]<=m))
+	{
+		if(!x&&!y)
+		{
+			tmin=a[2];
+			x=1;
+		}
+		if(y) tmax=ad;
+		if(ad-tmin>=m)
+		{
 			key=1;
-			if(x) {
-				tmin=a[2];x=0;
-			}
+		}
 	}
 
-	else if(b[0]>=0&&b[1]>=0&&b[2]>=0&&(b[0]+b[1]+b[2]<=m)) {
-			if(x&&!y) {
-				tmin=a[2];x=0;
-			}
-			if(y) tmax=ad;
-			if(ad-tmin>=m) {
-				key=1;
-			}
+	if(key==1)
+	{
+		i++;
+		y=1;
+		tmax=ad;
+		if(i>200)
+		{
+			i=0;
+			key=0;
+		}
 	}
-
-	if(key==1) {
-		i++;y=1;tmax=ad;
-		if(i>200) {
-			i=0;key=0;
-	}}
 
 	if(b[0]<=0&&b[1]<=0&&b[2]<=0&&b[0]+b[1]+b[2]<-m)
 		key=0;
 
-	if(key==0) {
-		tmin=ad;tmax=ad;x=1;y=0;i=0;
+	if(key==0)
+	{
+		tmin=ad;
+		tmax=ad;
+		x=0;
+		y=0;
+		i=0;
+	}
+
+	return key;
+}
+
+bit a1s(u16 ad,u8 m)
+{
+	b[0]=ad-a[0];
+	b[1]=a[0]-a[1];
+	b[2]=a[1]-a[2];
+	
+	a[2]=a[1];
+	a[1]=a[0];
+	a[0]=ad;
+
+	if(b[0]<0&&b[1]<0&&b[2]<0&&b[0]+b[1]+b[2]<-m)
+	{
+		key=1;
+		if(!x)
+		{
+			tmax=a[2];
+			x=1;
+		}
+	}
+
+	else if(b[0]<0&&b[1]<0&&b[2]<0&&(b[0]+b[1]+b[2]>-m))
+	{
+		if(!x&&!y)
+		{
+			tmax=a[2];
+			x=1;
+		}
+		if(y) tmin=ad;
+		if(ad-tmax<=-m)
+		{
+			key=1;
+		}
+	}
+
+	if(key==1)
+	{
+		i++;
+		y=1;
+		tmin=ad;
+		if(i>200)
+		{
+			i=0;
+			key=0;
+		}
+	}
+
+	if(b[0]>=0&&b[1]>=0&&b[2]>=0&&b[0]+b[1]+b[2]>m)
+		key=0;
+
+	if(key==0)
+	{
+		tmin=ad;
+		tmax=ad;
+		x=0;
+		y=0;
+		i=0;
 	}
 
 	return key;
