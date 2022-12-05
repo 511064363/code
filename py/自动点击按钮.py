@@ -1,0 +1,71 @@
+import pyautogui,time
+pyautogui.FAILSAFE =False
+pyautogui.PAUSE = 0.5
+
+print(pyautogui.size())   # 返回所用显示器的分辨率； 输出：Size(width=1920, height=1080)
+width,height = pyautogui.size()
+
+pyautogui.hotkey('ctrl', '1')  #打开数据排序自定义
+pyautogui.click(395,288)  #点击D列
+pyautogui.hotkey('alt', 's')   #排序
+pyautogui.click(734, 555)
+pyautogui.hotkey('m')
+pyautogui.hotkey('enter')
+pyautogui.hotkey('alt', 'a')
+pyautogui.click(724, 593)
+pyautogui.hotkey('r')
+pyautogui.hotkey('enter')
+pyautogui.hotkey('enter')
+pyautogui.hotkey('ctrl', '2')  #高亮重复项
+pyautogui.hotkey('enter')
+pyautogui.click(30,321)
+pyautogui.hotkey('ctrl', 'shift','l')
+pyautogui.hotkey('ctrl', '3')  #高亮重复项
+pyautogui.hotkey('r')
+pyautogui.click(699, 495)
+pyautogui.hotkey('m')
+pyautogui.hotkey('space')
+pyautogui.hotkey('r')
+pyautogui.hotkey('space')
+pyautogui.hotkey('alt', 'r')
+pyautogui.hotkey('space')
+
+pyautogui.click(432, 315)
+pyautogui.moveTo(175,405)
+pyautogui.click(64, 502)
+
+pyautogui.click(1424, 322)
+pyautogui.click(1002,607)
+pyautogui.hotkey('enter')
+pyautogui.click(1386,348)
+pyautogui.keyDown('ctrl')
+pyautogui.keyDown('shift')
+pyautogui.keyDown('down')
+pyautogui.keyUp('down')
+pyautogui.keyDown('left')
+pyautogui.keyUp('left')
+pyautogui.keyUp('shift')
+pyautogui.keyUp('ctrl')
+pyautogui.click(503,169)
+pyautogui.click(643,306)
+pyautogui.hotkey('ctrl', '4')
+
+pyautogui.keyDown('ctrl')
+pyautogui.keyDown('up')
+pyautogui.keyUp('up')
+pyautogui.keyUp('ctrl')
+pyautogui.click(432,318)
+pyautogui.moveTo(175,405)
+pyautogui.click(62, 503)
+
+pyautogui.click(1386,348)
+pyautogui.keyDown('ctrl')
+pyautogui.keyDown('shift')
+pyautogui.keyDown('down')
+pyautogui.keyUp('down')
+pyautogui.keyDown('left')
+pyautogui.keyUp('left')
+pyautogui.keyUp('shift')
+pyautogui.keyUp('ctrl')
+pyautogui.click(503,169)
+pyautogui.click(560,302)
