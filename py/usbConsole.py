@@ -252,8 +252,11 @@ class Ui_Form(object):
 
     def se(self):
         cp = configparser.ConfigParser()
-        cp.read('sp.ini')
-        conn = cp.get('com', 'serialPort')
+        try:
+            cp.read('sp.ini')
+            conn = cp.get('com', 'serialPort')
+        except Exception as e:
+            print(e)
         global s
         try:
             s= serial.Serial(conn, 9600, timeout=0.5)
