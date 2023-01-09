@@ -9,6 +9,7 @@
 import configparser
 import res_rc
 import serial
+import serial.tools.list_ports
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
@@ -250,16 +251,35 @@ class Ui_Form(object):
             "QPushButton:hover{color:#4286F3;background-color:rgb(229, 241, 251);}\n"
             "QPushButton:pressed{color:#4286F3;background-color:rgb(204, 228, 247);border-style: inset;}")
 
-    def se(self):
-        cp = configparser.ConfigParser()
-        try:
-            cp.read('sp.ini')
-            conn = cp.get('com', 'serialPort')
-        except Exception as e:
-            print(e)
+    def ser(self):
+        port_list = serial.tools.list_ports.comports()
+        # if len(port_list) <= 0:
+        #     print("无串口设备。")
+        # else:
+        #     print("可用的串口设备如下：")
+        for com in port_list:
+            if 'CH340' in list(com)[1]:
+                # xc=list(com)[0]
+                xc = com[0]
+                s = serial.Serial(xc, 9600)
+                while True:
+                    s.write(bytes.fromhex('bb'))
+                    n = s.inWaiting()
+                    if n:
+                        if (str(s.read())[4:6]) == "cc":
+                            print(xc,str(s.read())[4:6])
+                            return xc
+
+    def se(self,sp):
+        # cp = configparser.ConfigParser()
+        # try:
+        #     cp.read('sp0.ini')
+        #     conn = cp.get('com', 'serialPort')
+        # except Exception as e:
+        #     print(e)
         global s
         try:
-            s= serial.Serial(conn, 9600, timeout=0.5)
+            s= serial.Serial(sp, 9600, timeout=0.5)
             # s = serial.Serial("/dev/tty.usbserial-1710", 9600, timeout=0.5)
         except Exception as e:
             self.jy()
@@ -315,5 +335,6 @@ if __name__ == "__main__":
     ui = Ui_Form()
     ui.setupUi(Form)
     Form.show()
-    ui.se()
+    sp=ui.ser()
+    ui.se(sp)
     sys.exit(app.exec_())
