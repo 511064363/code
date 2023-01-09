@@ -259,6 +259,7 @@ class Ui_Form(object):
         #     print("可用的串口设备如下：")
         for com in port_list:
             if 'CH340' in list(com)[1]:
+#             if 'wch' in list(com)[0]:    # macos
                 # xc=list(com)[0]
                 xc = com[0]
                 s = serial.Serial(xc, 9600)
