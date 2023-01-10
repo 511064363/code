@@ -20,7 +20,7 @@ sbit LED=P3^4;
 bit busy;
 bit sw=0;
 u8 wptr,rptr,buffer[16],*ID;
-u8 it=0;
+u8 it=0,Ln=60;
 
 void Delay10ms()		//@24.000MHz
 {
@@ -87,73 +87,76 @@ void IO_Init()
 
 void Timer4Init()
 {
-		T4T3M &= 0xDF;			//?????12T??
-		T4L = 0xA0;				//???????
-		T4H = 0x15;				//???????
-		T4T3M |= 0x80;			//???4????
-		IE2 = 0x40; 
+	T4T3M &= 0xDF;			//?????12T??
+	T4L = 0xA0;				//???????
+	T4H = 0x15;				//???????
+	T4T3M |= 0x80;			//???4????
+	IE2 = 0x40; 
 }
+
 void UartInit()
 {
-    SCON = 0x50;
-    T2L = BRT;
-    T2H = BRT >> 8;
-    AUXR = 0x15;
-    wptr = 0x00;
-    rptr = 0x00;
-    busy = 0;
+	SCON = 0x50;
+	T2L = BRT;
+	T2H = BRT >> 8;
+	AUXR = 0x15;
+	wptr = 0x00;
+	rptr = 0x00;
+	busy = 0;
 }
 
 void UartSend(char dat)
 {
-    while (busy);
-    busy = 1;
-    SBUF = dat;
+	while (busy);
+	busy = 1;
+	SBUF = dat;
 }
 
-//void UartSendStr(char *p)
-//{
-//    while (*p)
-//    {
-//        UartSend(*p++);
-//    }
-//}
+void UartSendStr(char *p)
+{
+	while (*p)
+	{
+			UartSend(*p++);
+	}
+}
 
 void motor(u8 s)
 {
 //if(nFAULT){
-	switch (s){
-		case 0x12:IN1=0;IN2=1;LED=0;
-							break;
-		case 0x21:IN1=0;IN2=1;LED=0;
-							break;
+	switch (s)
+		{
+			case 0x12:IN1=0;IN2=1;LED=0;
+				break;
+			case 0x21:IN1=0;IN2=1;LED=0;
+				break;
 
-		case 0x34:IN3=0;IN4=1;LED=0;
-							break;
-		case 0x43:IN3=1;IN4=0;LED=0;
-							break;
+			case 0x34:IN3=0;IN4=1;LED=0;
+				break;
+			case 0x43:IN3=1;IN4=0;LED=0;
+				break;
 
-		case 0x56:IN5=0;IN6=1;LED=0;
-							break;
-		case 0x65:IN5=1;IN6=0;LED=0;
-							break;
+			case 0x56:IN5=0;IN6=1;LED=0;
+				break;
+			case 0x65:IN5=1;IN6=0;LED=0;
+				break;
 
-		case 0x78:IN7=0;IN8=1;LED=0;
-							break;
-		case 0x87:IN7=1;IN8=0;LED=0;
-							break;
+			case 0x78:IN7=0;IN8=1;LED=0;
+				break;
+			case 0x87:IN7=1;IN8=0;LED=0;
+				break;
 
-		case 0x00:IN1=0;IN2=0;IN3=0;IN4=0;
-							IN5=0;IN6=0;IN7=0;IN8=0;
-							break;
+			case 0x00:IN1=0;IN2=0;IN3=0;IN4=0;
+								IN5=0;IN6=0;IN7=0;IN8=0;
+				break;
 
-		case 0x11:IN1=1;IN2=1;IN3=1;IN4=1;
-							IN5=1;IN6=1;IN7=1;IN8=1;
-							LED=0;Delay200ms();
-							break;
-							
-		default:break;
-}}
+			case 0x11:IN1=1;IN2=1;IN3=1;IN4=1;
+								IN5=1;IN6=1;IN7=1;IN8=1;
+								LED=0;Delay200ms();
+				break;
+			default:
+				break;
+		}
+}
 
 void main(void)
 {
@@ -176,22 +179,23 @@ void main(void)
 
 void TM4_Isr() interrupt 20
 {
-	if(it++>25)
+	if(it++>Ln)
 		{
 			it=0;
 			LED = !LED;
 		}
-    AUXINTIF &= ~0x04;
+	AUXINTIF &= ~0x04;
 }
+
 void UartIsr() interrupt 4
 {
-	if (TI)
-	{
+	if(TI)
+		{
 			TI = 0;
 			busy = 0;
-	}
-	if (RI)
-	{
+		}
+	if(RI)
+		{
 			RI = 0;
 			if(SBUF==0xda)
 				{
@@ -199,8 +203,11 @@ void UartIsr() interrupt 4
 					IAP_CONTR = 0x60;
 				}
 			else if(SBUF==0xbb) 
+				{
 					sw=1;
+					Ln=20;
+				}
 			buffer[wptr++] = SBUF;
 			wptr &= 0x0f;
-	}
+		}
 }
