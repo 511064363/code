@@ -9,7 +9,7 @@
 import configparser
 
 from PyQt5.QtWidgets import QMessageBox
-
+import time
 import res_rc
 import serial
 import serial.tools.list_ports
@@ -267,14 +267,21 @@ class Ui_Form(object):
             if 'CH340' in list(com)[1]:    #win
             # if 'wch' in list(com)[0]:     # mac
                 xc = com[0]
-                s = serial.Serial(xc, 9600)
-                while True:
+                try:
+                    s = serial.Serial(xc, 115200, timeout=0.5)
+                except Exception as e:
+                    return None
+                i=100
+                while (i>0):
+                    i-=1
                     s.write(bytes.fromhex('bb'))
                     n = s.inWaiting()
                     if n:
-                        if (str(s.read())[4:6]) == "cc":
-                            print(xc,str(s.read())[4:6])
+                        # if (str(s.read())[4:6]) == "cc":
+                        if ("cc" in str(s.read())):
+                            # print(s.read())
                             return xc
+        return None
 
     def se(self,sp):
         # cp = configparser.ConfigParser()
@@ -286,7 +293,7 @@ class Ui_Form(object):
         global s
         d=bytes.fromhex('00')
         try:
-            s= serial.Serial(sp, 9600, timeout=0.5)
+            s= serial.Serial(sp, 115200, timeout=0.5)
             # s = serial.Serial("/dev/tty.usbserial-1710", 9600, timeout=0.5)
             s.write(d)
         except Exception as e:
@@ -341,8 +348,9 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     Form = QtWidgets.QWidget()
     ui = Ui_Form()
-    sp = ui.ser()
+
     ui.setupUi(Form)
+    sp = ui.ser()
     if sp==None:
         ui.messageDialog()
     Form.show()
