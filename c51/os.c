@@ -1,7 +1,7 @@
 #include <STC8F.H>
 #include <intrins.h>
 #define FOSC 24000000UL
-#define BRT (65536 - FOSC / 9600 / 4)
+#define BRT (65536 - FOSC / 115200 / 4)
 typedef unsigned char u8;
 typedef unsigned int u16;
 
@@ -56,24 +56,6 @@ void Delay200ms()		//@24.000MHz
 	} while (--i);
 }
 
-void Delay100ms()		//@24.000MHz
-{
-	unsigned char i, j, k;
-
-	_nop_();
-	_nop_();
-	i = 13;
-	j = 45;
-	k = 214;
-	do
-	{
-		do
-		{
-			while (--k);
-		} while (--j);
-	} while (--i);
-}
-
 void IO_Init()
 {
 	P1M0 = 0xfc; P1M1 = 0x03; 
@@ -112,17 +94,9 @@ void UartSend(char dat)
 	SBUF = dat;
 }
 
-void UartSendStr(char *p)
-{
-	while (*p)
-	{
-			UartSend(*p++);
-	}
-}
-
 void motor(u8 s)
 {
-//if(nFAULT){
+if(nFAULT){
 	switch (s)
 		{
 			case 0x12:IN1=0;IN2=1;LED=0;
@@ -156,6 +130,7 @@ void motor(u8 s)
 			default:
 				break;
 		}
+	}
 }
 
 void main(void)
@@ -169,7 +144,7 @@ void main(void)
 	while(1)
 		{
 			motor(SBUF);
-			if(sw) 
+			if(sw)
 				{
 					sw=0;
 					UartSend(0xcc);
@@ -187,27 +162,26 @@ void TM4_Isr() interrupt 20
 	AUXINTIF &= ~0x04;
 }
 
-void UartIsr() interrupt 4
+void UART1_Isr() interrupt 4
 {
-	if(TI)
-		{
-			TI = 0;
-			busy = 0;
-		}
-	if(RI)
-		{
-			RI = 0;
-			if(SBUF==0xda)
+    if (TI)
+    {
+        TI = 0;                                 //清中断标志
+        busy = 0;                            //测试端口
+    }
+    if (RI)
+    {
+        RI = 0;                                 //清中断标志
+        if(SBUF==0xda)
 				{
-					Delay100ms();
 					IAP_CONTR = 0x60;
 				}
-			else if(SBUF==0xbb) 
+				else if(SBUF==0xbb) 
 				{
 					sw=1;
-					Ln=20;
+					Ln=15;
 				}
 			buffer[wptr++] = SBUF;
-			wptr &= 0x0f;
-		}
+			wptr &= 0x0f;                             //测试端口
+    }
 }
