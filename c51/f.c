@@ -18,6 +18,123 @@ adcVal=(ksS16)(sum-imax-imin/8);
 //噪声
 adcVal+=rand()%20;
 
+//滑动平均滤波
+int moveAverageFilter(int ad)
+{
+    if(curNum < M)
+    {
+        value_buf[curNum] = ad;
+        sum += value_buf[curNum];
+			  curNum++;
+        return sum/curNum;
+    }
+    else
+    {
+        sum -= sum/M;
+        sum += ad;
+        return sum/M;
+    }
+}
+
+//crc
+u8 crc8_MAXIM(u8 *dat, u8 len)
+{
+    u8 crc, i;
+    crc = 0x00;
+
+    while(len--)
+    {
+        crc ^= *dat++;
+        for(i = 0;i < 8;i++)
+        {
+            if(crc & 0x01)
+            {
+                crc = (crc >> 1) ^ 0x8c;
+            }
+                else crc >>= 1;
+        }
+    }
+    return crc;
+}
+
+//uart_crc
+void UartIsr() interrupt 4
+{
+  if (TI)
+    {
+		TI = 0;
+		busy = 0;
+    }
+  if (RI)
+    {
+		RI = 0;
+		recv_data=SBUF;
+		switch(machine_step)
+		{
+			case 0:
+				if(0x55 == recv_data)		//1.?????????+1????????ж?????????????????
+				{
+					machine_step = 1;
+					recv_Cnt = 0;	
+					recv_buf[recv_Cnt] = recv_data;	
+				}			
+				else
+					machine_step = 0;
+				break;
+				
+			case 1:
+				if(0xAA == recv_data)
+				{
+					machine_step = 2;
+					recv_Cnt++;
+					recv_buf[recv_Cnt] = recv_data;
+				}
+				else
+					machine_step = 0;
+				break;
+							
+			case 2:
+				recv_Cnt++;
+				recv_buf[recv_Cnt] = recv_data;	//3.?????????????????
+				machine_step = 3;
+				break;
+			
+			case 3:
+				data_length = recv_data;	//	???????	
+				recv_Cnt++;
+				recv_buf[recv_Cnt] = recv_data; 
+				machine_step = 4;
+				break;
+			
+			case 4:
+				recv_Cnt++;
+				recv_buf[recv_Cnt] = recv_data;
+				if(data_length < recv_Cnt-2)			//?????????????????5
+					machine_step = 5;
+				break;
+				
+			case 5:
+				recv_Cnt++;
+				recv_buf[recv_Cnt] = recv_data;
+				crc=crc8_MAXIM(recv_buf+2,data_length+2);
+				if(crc == recv_data)		
+					rOK=1;			//6.????,???1			
+				else
+				{
+					machine_step = 0;			//??????,????????
+					rNG=1;
+				}
+				crc = 0;				//???0,??????????3???
+				machine_step = 0;			//++????????????0	
+				recv_Cnt = 0;				//???ok,??????
+				break;				
+
+			default:break;
+		}
+		if(SBUF==0xda){Delay100ms();IAP_CONTR = 0x60;}
+   }
+}
+
 //模拟按键转开关
 bit a2s(u16 ad,u8 m)
 {
