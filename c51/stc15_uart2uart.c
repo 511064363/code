@@ -63,26 +63,26 @@ void SendData(u8 dat)
 
 void Send4Data(u8 dat)
 {
-    while (busy2);               //µÈ´ıÇ°ÃæµÄÊı¾İ·¢ËÍÍê³É
-    ACC = dat;                  //»ñÈ¡Ğ£ÑéÎ»P (PSW.0)
-    if (P)                      //¸ù¾İPÀ´ÉèÖÃĞ£ÑéÎ»
+    while (busy2);               //ç­‰å¾…å‰é¢çš„æ•°æ®å‘é€å®Œæˆ
+    ACC = dat;                  //è·å–æ ¡éªŒä½P (PSW.0)
+    if (P)                      //æ ¹æ®Pæ¥è®¾ç½®æ ¡éªŒä½
     {
 #if (PARITYBIT == ODD_PARITY)
-        S4CON &= ~S4TB8;        //ÉèÖÃĞ£ÑéÎ»Îª0
+        S4CON &= ~S4TB8;        //è®¾ç½®æ ¡éªŒä½ä¸º0
 #elif (PARITYBIT == EVEN_PARITY)
-        S4CON |= S4TB8;         //ÉèÖÃĞ£ÑéÎ»Îª1
+        S4CON |= S4TB8;         //è®¾ç½®æ ¡éªŒä½ä¸º1
 #endif
     }
     else
     {
 #if (PARITYBIT == ODD_PARITY)
-        S4CON |= S4TB8;         //ÉèÖÃĞ£ÑéÎ»Îª1
+        S4CON |= S4TB8;         //è®¾ç½®æ ¡éªŒä½ä¸º1
 #elif (PARITYBIT == EVEN_PARITY)
-        S4CON &= ~S4TB8;        //ÉèÖÃĞ£ÑéÎ»Îª0
+        S4CON &= ~S4TB8;        //è®¾ç½®æ ¡éªŒä½ä¸º0
 #endif
     }
     busy2 = 1;
-    S4BUF = ACC;                //Ğ´Êı¾İµ½UART4Êı¾İ¼Ä´æÆ÷
+    S4BUF = ACC;                //å†™æ•°æ®åˆ°UART4æ•°æ®å¯„å­˜å™¨
 }
 void uartInit()
 {
@@ -113,18 +113,18 @@ void uart4Init()
 		P_SW2 &= ~0x04;            //S4_S0=0 (P0.2/RxD4, P0.3/TxD4)
 
 #if (PARITYBIT == NONE_PARITY)
-    S4CON = 0x50;               //8Î»¿É±ä²¨ÌØÂÊ
+    S4CON = 0x50;               //8ä½å¯å˜æ³¢ç‰¹ç‡
 #elif (PARITYBIT == ODD_PARITY) || (PARITYBIT == EVEN_PARITY) || (PARITYBIT == MARK_PARITY)
-    S4CON = 0xda;               //9Î»¿É±ä²¨ÌØÂÊ,Ğ£ÑéÎ»³õÊ¼Îª1
+    S4CON = 0xda;               //9ä½å¯å˜æ³¢ç‰¹ç‡,æ ¡éªŒä½åˆå§‹ä¸º1
 #elif (PARITYBIT == SPACE_PARITY)
-    S4CON = 0xd2;               //9Î»¿É±ä²¨ÌØÂÊ,Ğ£ÑéÎ»³õÊ¼Îª0
+    S4CON = 0xd2;               //9ä½å¯å˜æ³¢ç‰¹ç‡,æ ¡éªŒä½åˆå§‹ä¸º0
 #endif
 
-    T4L = (65536 - (FOSC/4/BAUD));   //ÉèÖÃ²¨ÌØÂÊÖØ×°Öµ
+    T4L = (65536 - (FOSC/4/BAUD));   //è®¾ç½®æ³¢ç‰¹ç‡é‡è£…å€¼
     T4H = (65536 - (FOSC/4/BAUD))>>8;
-    T4T3M |= 0x20;              //¶¨Ê±Æ÷4Îª1TÄ£Ê½
-    T4T3M |= 0x80;              //¶¨Ê±Æ÷4¿ªÊ¼¼ÆÊ±
-    IE2 = 0x10;                 //Ê¹ÄÜ´®¿Ú4ÖĞ¶Ï
+    T4T3M |= 0x20;              //å®šæ—¶å™¨4ä¸º1Tæ¨¡å¼
+    T4T3M |= 0x80;              //å®šæ—¶å™¨4å¼€å§‹è®¡æ—¶
+    IE2 = 0x10;                 //ä½¿èƒ½ä¸²å£4ä¸­æ–­
     EA = 1;   
 }
 
@@ -228,63 +228,69 @@ void Uart() interrupt 4
     if (RI)
     {
       RI = 0;                 //??RI?
-			recv_data=SBUF;
-			switch(machine_step)
-				{
-					case 0:
-						if(0x55 == recv_data)		//1.Ö¡Í··ûºÏ£¬×´Ì¬+1£¬ÏÂÒ»´ÎÖĞ¶Ï½øÈëºó¼ÌĞø¼ì²â£¬·ñÔò¶ªÆú
-							machine_step = 1;		
-						else
-							machine_step = 0;
-						break;
-						
-					case 1:
-						if(0xAA == recv_data)
-						{
-							machine_step = 2;
-							recv_Cnt = 0;			//2.¼´½«½øÈëÊı¾İÇø£¬¼ÆÊıÆô?
-						}
-						else
-							machine_step = 0;
-						break;
-									
-					case 2:
-						recv_buf[recv_Cnt] = recv_data;	//3.Êı¾İÀàĞÍ£¬´æµÚÒ»¸öÊı
-						machine_step = 3;
-						break;
-					
-					case 3:
-						data_length = recv_data;	//	Êı¾İ³¤¶È	
-						recv_Cnt++;
-						recv_buf[recv_Cnt] = recv_data; 
-						machine_step = 4;
-						break;
-					
-					case 4:
-						recv_Cnt++;
-						recv_buf[recv_Cnt] = recv_data;
-						if(data_length < recv_Cnt)			//²»Âú×ãÊ±£¬ÒÀ¾ÉÊÇ×´Ì¬5
-							machine_step = 5;
-						break;
-						
-					case 5:
-						recv_Cnt++;
-						recv_buf[recv_Cnt] = recv_data;
-						crc=crc8_MAXIM(recv_buf,data_length+2);
-						if(crc == recv_data)		
-							rOK=1;			//6.????,???1			
-						else
-						{
-							machine_step = 0;			//??????,????????
-							rNG=1;
-						}
-						crc = 0;				//???0,??????????3???
-						machine_step = 0;			//++????????????0	
-						recv_Cnt = 0;				//???ok,??????
-						break;				
+	recv_data=SBUF;
+	switch(machine_step)
+	{
+		case 0:
+			if(0x55 == recv_data)		//1.?????????+1????????Ğ¶?????????????????
+			{
+				machine_step = 1;
+				recv_Cnt = 0;	
+				recv_buf[recv_Cnt] = recv_data;	
+			}			
+			else
+				machine_step = 0;
+			break;
 
-					default:break;
-    }
+		case 1:
+			if(0xAA == recv_data)
+			{
+				machine_step = 2;
+				recv_Cnt++;
+				recv_buf[recv_Cnt] = recv_data;
+			}
+			else
+				machine_step = 0;
+			break;
+
+		case 2:
+			recv_Cnt++;
+			recv_buf[recv_Cnt] = recv_data;	//3.?????????????????
+			machine_step = 3;
+			break;
+
+		case 3:
+			data_length = recv_data;	//	???????	
+			recv_Cnt++;
+			recv_buf[recv_Cnt] = recv_data; 
+			machine_step = 4;
+			break;
+
+		case 4:
+			recv_Cnt++;
+			recv_buf[recv_Cnt] = recv_data;
+			if(data_length < recv_Cnt-2)			//?????????????????5
+				machine_step = 5;
+			break;
+
+		case 5:
+			recv_Cnt++;
+			recv_buf[recv_Cnt] = recv_data;
+			crc=crc8_MAXIM(recv_buf+2,data_length+2);
+			if(crc == recv_data)		
+				rOK=1;			//6.????,???1			
+			else
+			{
+				machine_step = 0;			//??????,????????
+				rNG=1;
+			}
+			crc = 0;				//???0,??????????3???
+			machine_step = 0;			//++????????????0	
+			recv_Cnt = 0;				//???ok,??????
+			break;				
+
+		default:break;
+	}
 	}
     if (TI)
     {
@@ -297,12 +303,12 @@ void Uart4() interrupt 18
 {
 if (S4CON  & S4RI)
 	{
-			S4CON &= ~S4RI;         //Çå³ıS4RIÎ»
-			recv2_data = S4BUF;             //P0ÏÔÊ¾´®¿ÚÊı¾İ
+			S4CON &= ~S4RI;         //æ¸…é™¤S4RIä½
+			recv2_data = S4BUF;             //P0æ˜¾ç¤ºä¸²å£æ•°æ®
 			switch(machine2_step)
 				{
 					case 0:
-						if(0x55 == recv2_data)		//1.Ö¡Í··ûºÏ£¬×´Ì¬+1£¬ÏÂÒ»´ÎÖĞ¶Ï½øÈëºó¼ÌĞø¼ì²â£¬·ñÔò¶ªÆú
+						if(0x55 == recv2_data)		//1.å¸§å¤´ç¬¦åˆï¼ŒçŠ¶æ€+1ï¼Œä¸‹ä¸€æ¬¡ä¸­æ–­è¿›å…¥åç»§ç»­æ£€æµ‹ï¼Œå¦åˆ™ä¸¢å¼ƒ
 							machine2_step = 1;		
 						else
 							machine2_step = 0;
@@ -312,19 +318,19 @@ if (S4CON  & S4RI)
 						if(0xAA == recv2_data)
 						{
 							machine2_step = 2;
-							recv2_Cnt = 0;			//2.¼´½«½øÈëÊı¾İÇø£¬¼ÆÊıÆô?
+							recv2_Cnt = 0;			//2.å³å°†è¿›å…¥æ•°æ®åŒºï¼Œè®¡æ•°å¯?
 						}
 						else
 							machine2_step = 0;
 						break;
 									
 					case 2:
-						recv2_buf[recv2_Cnt] = recv2_data;	//3.Êı¾İÀàĞÍ£¬´æµÚÒ»¸öÊı
+						recv2_buf[recv2_Cnt] = recv2_data;	//3.æ•°æ®ç±»å‹ï¼Œå­˜ç¬¬ä¸€ä¸ªæ•°
 						machine2_step = 3;
 						break;
 					
 					case 3:
-						data2_length = recv2_data;	//	Êı¾İ³¤¶È
+						data2_length = recv2_data;	//	æ•°æ®é•¿åº¦
 						recv2_Cnt++;
 						recv2_buf[recv2_Cnt] = recv2_data; 
 						machine2_step = 4;
@@ -333,7 +339,7 @@ if (S4CON  & S4RI)
 					case 4:
 						recv2_Cnt++;
 						recv2_buf[recv2_Cnt] = recv2_data;
-						if(data2_length < recv2_Cnt)			//²»Âú×ãÊ±£¬ÒÀ¾ÉÊÇ×´Ì¬5
+						if(data2_length < recv2_Cnt)			//ä¸æ»¡è¶³æ—¶ï¼Œä¾æ—§æ˜¯çŠ¶æ€5
 							machine2_step = 5;
 						break;
 						
@@ -358,7 +364,7 @@ if (S4CON  & S4RI)
 	}
      if (S4CON & S4TI)
     {
-        S4CON &= ~S4TI;         //Çå³ıS4TIÎ»
-        busy2 = 0;               //ÇåÃ¦±êÖ¾
+        S4CON &= ~S4TI;         //æ¸…é™¤S4TIä½
+        busy2 = 0;               //æ¸…å¿™æ ‡å¿—
     }
 }
