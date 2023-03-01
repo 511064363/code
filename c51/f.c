@@ -57,6 +57,19 @@ u8 crc8_MAXIM(u8 *dat, u8 len)
     return crc;
 }
 
+//LVD低压中断写eeprom保存数据
+void LVD_Isr() interrupt 6
+{
+    P0M0 = 0x00; P0M1 = 0xff; 
+    P1M0 = 0x01; P1M1 = 0xfe;  
+    P2M0 = 0x00; P2M1 = 0xff; 
+    P3M0 = 0x00; P3M1 = 0xff; 
+    P4M0 = 0x00; P4M1 = 0xff; 
+    e++;IapProgram(0x0000,e);
+    PCON &= ~LVDF;//清中断标志
+    LED=~LED;Delay600ms();
+}
+
 //uart_crc
 void UartIsr() interrupt 4
 {
