@@ -67,7 +67,7 @@ void LVD_Isr() interrupt 6
     P4M0 = 0x00; P4M1 = 0xff; 
     e++;IapProgram(0x0000,e);
     PCON &= ~LVDF;//清中断标志
-    LED=~LED;Delay600ms();
+    Delay100ms();//必须有延时
 }
 
 //uart_crc
