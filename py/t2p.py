@@ -5,7 +5,7 @@ import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 apa=1
-__time = datetime.datetime.now().strftime('%g%m%d%H')
+__time = datetime.datetime.now().strftime('%g%m%d')+'_'+datetime.datetime.now().strftime('%H%M%S')
 
 path = os.getcwd()  # 获取当前路径
 listDir = os.listdir(path)  # 获取当前目录下的所有内容
