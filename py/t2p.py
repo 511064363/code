@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 import os
-import sys
-import re
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,30 +13,25 @@ z = 0
 for j in listDir:
     if os.path.splitext(j)[1] == ".txt":
         z += 1
-        (a, b, c, d, e) = np.loadtxt(j, dtype=int, skiprows=1, delimiter=',',comments='#',usecols=(0, 1, 2, 3, 4), converters=0,unpack=True)
+        (a, b, c, d, e) = np.loadtxt(j, dtype=int, skiprows=1, delimiter=',',comments='#',usecols=(0, 1, 2, 3, 4), converters=None,unpack=True)
+        ax=np.ptp(c)/64
+        ay=np.mean(d)-16*ax-60
 
-        xadm = int((max(b) - min(b)) / (max(c) - min(c)))
-        yadm = min(b) - min(c) * xadm - (max(b) - min(b))
-        
-        if 64 in e:
-            xkey = int(((max(b) - min(b)) / (max(e) - min(e))) / 4)
-            ykey = min(c) * xadm + yadm - max(e) * xadm * 3
-        else:
-            xkey=0
-            ykey = min(c) * xadm + yadm
+        bx=np.ptp(c)/np.ptp(b)
+        by=np.mean(b)*bx-np.mean(c)
 
         plt.rcParams['font.sans-serif'] = ['SimHei']
         plt.rcParams['axes.unicode_minus'] = False
-        plt.title(os.path.splitext(j)[0],fontsize=50)
-        plt.plot(b, color='green', label='adc', alpha=1, linewidth=0.8)
-        plt.plot((c * xadm + yadm), color='blue', label='adm', alpha=1, linewidth=0.8)
-        plt.plot(d * xadm + yadm, color='orange', label='base', alpha=1, linewidth=0.8)
-        if 64 in e:
-            plt.plot(e * xkey + ykey, color='red', label='key', alpha=1, linewidth=0.8)
-        else:
-            plt.plot(e*xkey+ykey-50, color='red', label='key', alpha=1, linewidth=0.8)
+        plt.title(os.path.splitext(j)[0]+'_'+__time,fontsize=30)
+        plt.plot(b*bx-by+np.ptp(c)+60, color='green', label='adc', alpha=0.5, linewidth=0.8)
+        plt.plot(c, color='blue', label='adm', alpha=0.5, linewidth=0.8)
+        plt.plot(d, color='orange', label='base', alpha=0.5, linewidth=0.8)
+        plt.plot(a*ax+ay, color='red', label='key', alpha=0.5, linewidth=0.8)
+
+        plt.xlim(-10, len(a) + 26)
         plt.legend()
         plt.draw()
-        plt.gcf().set_size_inches(50, 6)#12
+        plt.gcf().set_size_inches(50, 8)
+        plt.show()
         plt.savefig(str(z) + '_' + os.path.splitext(j)[0] + ".png", dpi=200)
         plt.close()
