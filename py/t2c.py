@@ -6,6 +6,8 @@ import re
 import datetime
 __time = datetime.datetime.now().strftime('%g%m%d%H')
 
+adc=1
+
 def t2c(x,y,z):
     tt = ('////////////////////////////////////////////////////////////////////////////////\n' +
           '/// <pre>\n' +
@@ -55,15 +57,15 @@ def t2c(x,y,z):
     while True:
         line = f.readline()
         if line :
-            if re.findall(r"^\d, \d+\b", line):
-                m = line.split(",")
-                file.write(m[1] + ',')
-                n = m[1]
-                i += 1
-                if i % 9 == 0:
-                    file.write('\n')
-            else:
-                continue
+            #if re.findall(r"^", line):
+            m = line.split(",")
+            file.write(m[adc] + ',')
+            n = m[adc]
+            i += 1
+            if i % 9 == 0:
+                file.write('\n')
+            # else:
+            #     continue
         else:
             break
     file.write(n)
@@ -75,6 +77,6 @@ listDir = os.listdir(path)  # 获取当前目录下的所有内容
 z=0
 for j in listDir:
     if os.path.splitext(j)[1]==".txt":
-        if os.path.getsize(j) and re.findall(r"^\d, \d+\b", open(j, encoding='utf-8').readline()):
-                z += 1
-                t2c(os.path.splitext(j)[0], j, z)
+        # if os.path.getsize(j) and re.findall(r"^\d, \d", open(j, encoding='utf-8').readline()):
+        z += 1
+        t2c(os.path.splitext(j)[0], j, z)
