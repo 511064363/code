@@ -6,7 +6,9 @@ import re
 import datetime
 __time = datetime.datetime.now().strftime('%g%m%d%H')
 
+#adc在第1列，每行有6个逗号
 adc=1
+Cd=6
 
 def t2c(x,y,z):
     tt = ('////////////////////////////////////////////////////////////////////////////////\n' +
@@ -50,25 +52,25 @@ def t2c(x,y,z):
           '//}\n' +
           '#endif // __cplusplus\n'
           )
+
     f = open(y,encoding='utf-8')
     file = open('test_' + __time +'_' + x + '_'+str(z) + '.c','w',encoding='utf-8')
     file.write(tt)
     i=0
-    while True:
+    Lj = len(open(j).readlines())
+    while Lj:
+        Lj=Lj-1
         line = f.readline()
-        if line :
-            #if re.findall(r"^", line):
+        if line.count(',')==Cd:
             m = line.split(",")
             file.write(m[adc] + ',')
-            n = m[adc]
+			#n=m[adc]
             i += 1
             if i % 9 == 0:
                 file.write('\n')
-            # else:
-            #     continue
         else:
-            break
-    file.write(n)
+            continue
+	#file.write(n)
     file.write(tw)
     f.close()
 
