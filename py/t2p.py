@@ -2,6 +2,8 @@
 # -*- coding:utf-8 -*-
 import os
 import datetime
+import sys
+import win32api,win32con
 import numpy as np
 import matplotlib.pyplot as plt
 from fileinput import FileInput
@@ -24,8 +26,12 @@ for j in listDir:
         z += 1
 
         f2(j,'#')  # 处理异常帧
+        try:
+            (a, b, c, d, e) = np.loadtxt(j, dtype=int, skiprows=1, delimiter=',', comments='#', usecols=(0, 1, 2, 3, 4),converters=None, unpack=True)
+        except Exception as e:
+            print(win32api.MessageBox(0,str(e),"警告", win32con.MB_ICONWARNING))
+            sys.exit()
 
-        (a, b, c, d, e) = np.loadtxt(j, dtype=int, skiprows=1, delimiter=',', comments='#', usecols=(0, 1, 2, 3, 4),converters=None, unpack=True)
         ax = np.ptp(c) / 64
         ay = np.mean(d) - 16 * ax - 60
 
