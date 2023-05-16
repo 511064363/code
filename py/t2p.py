@@ -3,14 +3,14 @@
 import os
 import datetime
 import sys
-import win32api,win32con
+# import win32api,win32con
 import numpy as np
 import matplotlib.pyplot as plt
 from fileinput import FileInput
 
 Cd=6
 apa = 1
-__time = datetime.datetime.now().strftime('%g%m%d') + '_' + datetime.datetime.now().strftime('%H%M%S')
+__time = datetime.datetime.now().strftime('%g%m%d') #+ '_' + datetime.datetime.now().strftime('%H%M%S')
 
 def f2(filename, content):
     for line in FileInput(filename, inplace=True):
@@ -29,8 +29,10 @@ for j in listDir:
         try:
             (a, b, c, d, e) = np.loadtxt(j, dtype=int, skiprows=1, delimiter=',', comments='#', usecols=(0, 1, 2, 3, 4),converters=None, unpack=True)
         except Exception as e:
-            print(win32api.MessageBox(0,str(e),"警告", win32con.MB_ICONWARNING))
+            # print(win32api.MessageBox(0,str(e),"警告", win32con.MB_ICONWARNING))
             sys.exit()
+
+        ti=str(z) + '_' +os.path.splitext(j)[0] + '_ADC' +str(int(np.mean(b)))+ '_KEY'+str(np.sum(np.diff(a)==16))+ '_' + __time
 
         ax = np.ptp(c) / 64
         ay = np.mean(d) - 16 * ax - 60
@@ -40,7 +42,7 @@ for j in listDir:
 
         plt.rcParams['font.sans-serif'] = ['SimHei']
         plt.rcParams['axes.unicode_minus'] = False
-        plt.title(os.path.splitext(j)[0] + '_' + __time, fontsize=30)
+        plt.title(ti, fontsize=30)
         plt.plot(b * bx - by + np.ptp(c) + 60, color='green', label='adc', alpha=apa, linewidth=0.8)
         plt.plot(c, color='blue', label='adm', alpha=apa, linewidth=0.8)
         plt.plot(d, color='orange', label='base', alpha=apa, linewidth=0.8)
@@ -49,7 +51,8 @@ for j in listDir:
         plt.xlim(-10, len(a) + 26)
         plt.legend(frameon=False)
         plt.draw()
+        plt.yticks([])#隐藏y轴标签
         plt.gcf().set_size_inches(50, 8)
-        plt.savefig(str(z) + '_' + os.path.splitext(j)[0] + ".png", transparent=True, dpi=200, bbox_inches="tight")
-        plt.show()
+        plt.savefig(ti + ".png", transparent=True, dpi=200, bbox_inches="tight")
+        # plt.show()
         plt.close()
