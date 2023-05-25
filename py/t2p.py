@@ -56,3 +56,9 @@ for j in listDir:
         plt.savefig(ti + ".png", transparent=True, dpi=200, bbox_inches="tight")
         # plt.show()
         plt.close()
+        
+#         import seaborn as sns
+#         import matplotlib.pyplot as plt
+#         plt.hist(b,bins=30,density=True,edgecolor='white')#直方图
+#         sns.kdeplot(b)#密度图
+#         plt.show()
