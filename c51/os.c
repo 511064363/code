@@ -76,6 +76,12 @@ void Timer4Init()
 	IE2 = 0x40; 
 }
 
+void tj()
+{
+	IE2 = 0x00;
+	LED=0;
+}
+
 void UartInit()
 {
 	SCON = 0x50;
@@ -96,41 +102,41 @@ void UartSend(char dat)
 
 void motor(u8 s)
 {
-if(nFAULT){
+//if(nFAULT){
 	switch (s)
 		{
-			case 0x12:IN1=0;IN2=1;LED=0;
+			case 0x12:IN1=0;IN2=1;tj();
 				break;
-			case 0x21:IN1=0;IN2=1;LED=0;
-				break;
-
-			case 0x34:IN3=0;IN4=1;LED=0;
-				break;
-			case 0x43:IN3=1;IN4=0;LED=0;
+			case 0x21:IN1=0;IN2=1;tj();
 				break;
 
-			case 0x56:IN5=0;IN6=1;LED=0;
+			case 0x34:IN3=0;IN4=1;tj();
 				break;
-			case 0x65:IN5=1;IN6=0;LED=0;
+			case 0x43:IN3=1;IN4=0;tj();
 				break;
 
-			case 0x78:IN7=0;IN8=1;LED=0;
+			case 0x56:IN5=0;IN6=1;tj();
 				break;
-			case 0x87:IN7=1;IN8=0;LED=0;
+			case 0x65:IN5=1;IN6=0;tj();
+				break;
+
+			case 0x78:IN7=0;IN8=1;tj();
+				break;
+			case 0x87:IN7=1;IN8=0;tj();
 				break;
 
 			case 0x00:IN1=0;IN2=0;IN3=0;IN4=0;
-								IN5=0;IN6=0;IN7=0;IN8=0;
+					IN5=0;IN6=0;IN7=0;IN8=0;IE2 = 0x40;
 				break;
 
 			case 0x11:IN1=1;IN2=1;IN3=1;IN4=1;
-								IN5=1;IN6=1;IN7=1;IN8=1;
-								LED=0;Delay200ms();
+					IN5=1;IN6=1;IN7=1;IN8=1;
+					LED=0;Delay200ms();
 				break;
 			default:
 				break;
 		}
-	}
+//	}
 }
 
 void main(void)
@@ -166,22 +172,22 @@ void UART1_Isr() interrupt 4
 {
     if (TI)
     {
-        TI = 0;                                 //清中断标志
-        busy = 0;                            //测试端口
+        TI = 0;                                 //?????
+        busy = 0;                            //????
     }
     if (RI)
     {
-        RI = 0;                                 //清中断标志
+        RI = 0;                                 //?????
         if(SBUF==0xda)
-				{
-					IAP_CONTR = 0x60;
-				}
-				else if(SBUF==0xbb) 
-				{
-					sw=1;
-					Ln=15;
-				}
-			buffer[wptr++] = SBUF;
-			wptr &= 0x0f;                             //测试端口
+		{
+			IAP_CONTR = 0x60;
+		}
+		else if(SBUF==0xbb) 
+		{
+			sw=1;
+			Ln=30;
+		}
+		buffer[wptr++] = SBUF;
+		wptr &= 0x0f;                             //????
     }
 }
