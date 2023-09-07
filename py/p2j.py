@@ -24,16 +24,14 @@ def pdf_to_jpg(name):
     for pg in range(doc.pageCount):
         page = doc[pg]
         rotate = int(0)
-        # 每个尺寸的缩放系数为2，这将为我们生成分辨率提高四倍的图像。
-        zoom_x = 2.0
-        zoom_y = 2.0
+        # 每个尺寸的缩放系数为5，这将为我们生成分辨率提高四倍的图像。
+        zoom_x = 5.0
+        zoom_y = 5.0
         trans = fitz.Matrix(zoom_x, zoom_y).preRotate(rotate)
         pm = page.getPixmap(matrix=trans, alpha=False)
-
-        pic_name = '{}.jpg'.format(pdf_name)
-        # 拼接生成pdf的文件路径
+        pic_name = '{}.jpg'.format(pdf_name+str(pg))
         pic_pwd = os.path.join(pdf_name, pic_name)
-        # print(pic_name)
+
         pm.writePNG(pic_pwd)
 
 if __name__ == '__main__':
