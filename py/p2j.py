@@ -7,12 +7,10 @@ import fitz
 
 import os
 
-tmp = r'C:\Users\Xu\PycharmProjects\pythonProject6'   #pdf路径
+tmp = os.getcwd()   #pdf路径
 
-export_file = r"C:\Users\Xu\PycharmProjects\pythonProject6"
 
-save_path = r"C:\Users\Xu\PycharmProjects\pythonProject6"
-os.makedirs(export_file, exist_ok=True)
+os.makedirs(tmp, exist_ok=True)
 pdf_dir = [i for i in os.listdir(tmp) if os.path.splitext(i)[-1] == ".pdf"]
 
 def pdf_to_jpg(name):
@@ -22,7 +20,7 @@ def pdf_to_jpg(name):
     doc = fitz.open(pwd_name)
     # 将文件名同我们的保存路径拼接起来（保存图片的文件夹）
     dir_name = os.path.splitext(name)[0]
-    pdf_name = os.path.join(export_file, dir_name)
+    pdf_name = os.path.join(tmp, dir_name)
     for pg in range(doc.pageCount):
         page = doc[pg]
         rotate = int(0)
