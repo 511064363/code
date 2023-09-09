@@ -42,8 +42,9 @@ def pdf_to_jpg(name):
 
 
 if __name__ == '__main__':
-    pool = Pool(10)
+    # pool = Pool(10)
     for i in pdf_dir:
-        res = pool.apply_async(pdf_to_jpg, (i,))
-    pool.close()
-    pool.join()
+        pdf_to_jpg(i)
+    #     res = pool.apply_async(pdf_to_jpg, (i,))
+    # pool.close()
+    # pool.join()
