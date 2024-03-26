@@ -1,8 +1,8 @@
 import os
 import glob
 
-# 批量提取当前路径下含关键字的所在行，写入output.txt文件
-keywords = ['PSR_Arm4:Y','Cnl Magnet Detector Released','Behavior Task/Match Grip(17): Task Started Active','Cnl Magnet Detector Released','Enter Power Off Countdown','is dead detected by AppLivelinessMonitor in']
+#批量提取当前路径下含关键字的所在行，写入output.txt文件
+keywords = ['PSR_Arm4:Y','Cnl Magnet Detector Pressed','Behavior Task/Match Grip(17): Task Started Active','Cnl Magnet Detector Released','Enter Power Off Countdown','is dead detected by AppLivelinessMonitor in']
 
 # 获取当前路径/含子目录的log文件
 def get_logs():
