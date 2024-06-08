@@ -13,7 +13,7 @@ for %%f in (*.pdf) do (
     set "newname=!original: =_!"
     
     :: 给文件名添加前缀
-    set "newname=!CURRENT_DATE!!newname!"
+    set "newname=!CURRENT_DATE!_!newname!"
     
     :: 重命名文件
     ren "%%f" "!newname!"
