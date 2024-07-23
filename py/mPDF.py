@@ -25,7 +25,7 @@ class X:
         pdf_dir = []
         for filename in os.listdir(tmp):
             # 检查文件是否为PDF
-            if filename.endswith('.pdf'or'.jpeg'or'.jpg'or'.png'):
+            if filename.endswith('.pdf') or filename.endswith('.jpg') or filename.endswith('.png') or filename.endswith('.jpeg'):
                 if '_' not in filename:
                 # 构造新的文件名
                     new_filename = f"{current_date}_{filename}"
@@ -103,7 +103,7 @@ class Y:
         # 输入要合并的PDF文件路径
 
         input_p1 = [j for j in pdf_dir if kw1 in j]
-        input_p1.sort()
+        input_p1.sort(reverse = True)
 
         return input_p1
 
@@ -139,7 +139,7 @@ class FileChangeHandler(FileSystemEventHandler):
             self.i += 1
 
         if self.i == 1:
-            time.sleep(6)
+            time.sleep(3)
             y.merge_pdfs(y.get_pwdsort(), f'Tim_{current_date}.pdf')
             webbrowser.open(os.getcwd() + f'/Tim_{current_date}.pdf')
             os._exit(0)
