@@ -7,6 +7,9 @@
 /*
 55 AA 00 01 00 C4
 55 AA 01 01 00 6F
+
+55 AA 01 01 64 6B
+PT=1,闄愭祦1A
 55 AA 05 01 00 F1
 55 AA 09 01 00 4A
 55 AA 0C 01 00 7F
@@ -41,7 +44,18 @@ bit rOK=0,rNG=0;
 u8 wptr,rptr,buffer[16],recv_buf[16],*ID;
 u8 data_length,crc;
 u16 adcV=0;
-u8 ii=0x00,ic=0xFF;
+u8 ch=0x00,ic=0xFF;
+
+void Delay500ms(void)	//@24.000MHz
+{
+	unsigned long edata i;
+
+	_nop_();
+	_nop_();
+	i = 2999998UL;
+	while (i) i--;
+}
+
 
 void IoInit()
 {
@@ -145,29 +159,34 @@ u16 adcFilter()
 	return ((isum-imax-imin)/10);
 }
 
-void Ic()
+void ICC()
 {
 	u16 i=0;
 	adcV=adcFilter();
-	UartSend(0x55);UartSend(0xAA);UartSend(ii);
-	switch (ii)
+	UartSend(0x55);UartSend(0xAA);
+	UartSend(ic);UartSend(ch);
+	switch (ch)
 	{
-		case 0x01:
-			i=adcV*2500/4096;
+		case 0x00:
+			i=adcV*0.611;
 			break;
-		case 0x02:
-			i=adcV*5000/4096;
-			if(i>ic*10) PT=0;
+		case 0x01:
+			i=adcV*1.221;
+			if(i>ic*10)
+			{
+				PT=0;
+				LED=1;
+			}
 			break;
 		case 0x03:
-			i=adcV*100/4096;
+			i=adcV*0.0244;
 			break;
 		default:
 			break;
 	}
 	UartSend((i>>8)&0xFF);UartSend(i&0xFF);
-	ii++;
-	if(ii==0x03) ii=0;
+	ch++;
+	if(ch>=0x04) ch=0x00;
 }
 	
 void Vr(u8 i)
@@ -222,9 +241,8 @@ void main(void)
 	EA = 1;
 	ADC_START = 1;
 	
-	Vr(0x05);	//上电默认请求PD5V
-	AdcChs(0x00);	//上电默认ADC通道0
-	
+	Vr(0x05);	//涓婄數榛樿璇锋眰PD5V
+
 	while(1)
 	{
 		if(rOK)
@@ -234,14 +252,13 @@ void main(void)
 				UartSend(recv_buf[i]);
 			if(recv_buf[3]==0x01)
 			{
-				Vr(recv_buf[2]);
-				ic=recv_buf[4];
+				Vr(recv_buf[2]);	//PDS
+				ic=recv_buf[4];		//闄愭祦
 			}	
 		}
 		if(rNG)	rNG=0;
-		Ic();
-		UartSendS(adcV);
-		UartSend(0x0d);UartSend(0x0a);
+		ICC();
+		Delay500ms();
 	}
 }
 
@@ -317,7 +334,7 @@ void UART1_Isr() interrupt 4
 
 void ADC_Isr() interrupt 5
 {
-	switch (ii)
+	switch (ch)
 	{
 		case 0x00:
 			AdcChs(0x00);break;
